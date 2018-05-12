@@ -1,6 +1,7 @@
 import requests
 import re
 import json
+import pandas as pd
 
 base_url = 'http://en.vedur.is/earthquakes-and-volcanism/earthquakes/#view=table' 
 
@@ -19,12 +20,17 @@ def create_list_from_str(string):
     quake_list = re.findall(r'({.*?})', quakes)
     quake_list = [i.replace("'", '"') for i in quake_list]
 
+    quake_list = [i.replace("new Date(",'"') for i in quake_list]
+    quake_list = [i.replace(")",'"') for i in quake_list]
     quake_list = [json.loads(i) for i in quake_list]
-
     return quake_list
 
 if __name__ == '__main__':
     site = get_data_from_url(base_url)
     quakes = parse_table(site)
 
-    print(create_list_from_str(quakes))
+    list_of_quakes = create_list_from_str(quakes)
+
+    dataframe = pd.DataFrame(list_of_quakes)
+
+    print( dataframe )
