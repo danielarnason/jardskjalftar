@@ -2,6 +2,7 @@ import requests
 import re
 import json
 import pandas as pd
+from sqlalchemy import create_engine
 
 base_url = 'http://en.vedur.is/earthquakes-and-volcanism/earthquakes/#view=table' 
 
@@ -25,6 +26,10 @@ def create_list_from_str(string):
     quake_list = [json.loads(i) for i in quake_list]
     return quake_list
 
+def upload_into_postgres(dataframe):
+    engine = create_engine('postgresql://localhost:5432/danielarnason')
+    dataframe.to_sql('quakes', engine, if_exists='append')
+
 if __name__ == '__main__':
     site = get_data_from_url(base_url)
     quakes = parse_table(site)
@@ -33,4 +38,4 @@ if __name__ == '__main__':
 
     dataframe = pd.DataFrame(list_of_quakes)
 
-    print( dataframe )
+    upload_into_postgres(dataframe)
