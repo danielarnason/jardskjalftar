@@ -30,16 +30,17 @@ def parse_js_var(string):
 
     return quake_list
 
-def upload_into_postgres(list_of_quakes):
-    dataframe = pd.DataFrame(list_of_quakes)
-    engine = create_engine('postgresql://localhost:5432/danielarnason')
-    dataframe.to_sql('quakes', engine, if_exists='append', index=False)
+def create_db_engine(db_url):
+    return create_engine(db_url)
 
-def remove_db_duplicates(sql_statement):
-    engine = create_engine('postgresql://localhost:5432/danielarnason')
-    df = pd.read_sql_query(sql_statement, con=engine)
+def upload_into_postgres(list_of_quakes, db_engine):
+    dataframe = pd.DataFrame(list_of_quakes)
+    dataframe.to_sql('quakes', db_engine, if_exists='append', index=False)
+
+def remove_db_duplicates(sql_statement, db_engine):
+    df = pd.read_sql_query(sql_statement, con=db_engine)
     df = df.drop_duplicates(subset='t')
-    df.to_sql('quakes', engine, if_exists='replace', index=False)
+    df.to_sql('quakes', db_engine, if_exists='replace', index=False)
 
 def parse_date(lst):
     for quake in lst:
@@ -55,5 +56,6 @@ if __name__ == '__main__':
     quakes_str = parse_table(site)
 
     list_of_quakes = parse_js_var(quakes_str)
-    upload_into_postgres(list_of_quakes)
-    remove_db_duplicates('SELECT * FROM quakes;')
+    engine = create_db_engine('postgresql://localhost:5432/danielarnason')
+    upload_into_postgres(list_of_quakes, engine)
+    remove_db_duplicates('SELECT * FROM quakes;', engine)
