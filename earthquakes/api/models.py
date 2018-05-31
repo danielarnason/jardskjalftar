@@ -2,6 +2,7 @@ from django.db import models
 
 
 class Quakes(models.Model):
+    id = models.IntegerField(primary_key=True)
     a = models.DecimalField(max_digits=7, decimal_places=5)
     dd = models.TextField(db_column='dD', blank=True, null=True)  # Field name made lowercase.
     dl = models.TextField(db_column='dL', blank=True, null=True)  # Field name made lowercase.
