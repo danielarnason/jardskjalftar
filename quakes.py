@@ -35,6 +35,7 @@ def create_db_engine(db_url):
 
 def upload_into_postgres(list_of_quakes, db_engine):
     dataframe = pd.DataFrame(list_of_quakes)
+    dataframe.sort_values('t')
     dataframe['id'] = range(1, len(dataframe) + 1)
     dataframe.to_sql('quakes', db_engine, if_exists='append', index=False)
 
